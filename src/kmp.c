@@ -20,7 +20,7 @@ typedef struct _CustomData {
 static void handle_message (CustomData *data, GstMessage *msg);
 
 int
-gst_init_main (int argc, char *argv[]) {
+gst_init_main (int argc, char *argv[], char *filepath) {
   CustomData data;
   GstBus *bus;
   GstMessage *msg;
@@ -36,7 +36,7 @@ gst_init_main (int argc, char *argv[]) {
 
   //char gst_cmd[PATH_MAX] = "playbin uri=file://"; 
   char gst_cmd[PATH_MAX] = "playbin uri=";
-  strcat(gst_cmd, argv[1]);
+  strcat(gst_cmd, filepath);
   //gst_playbin_cmd(argv[1], gst_cmd);
   
   data.playbin = gst_parse_launch(gst_cmd, NULL);

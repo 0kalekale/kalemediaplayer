@@ -3,14 +3,14 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
+
 #include "argparse.h"
 
 void
 gst_playbin_cmd(char *argv1, char* refrence){
    /*
-   argv1 is the argv[1]
-   refrence is the gst playbin command
-   this function concatinates the file path to the refrence provided
+   REMOVE ME
    */
    char cwd[PATH_MAX];
    if (getcwd(cwd, sizeof(cwd)) != NULL) {
@@ -24,17 +24,23 @@ gst_playbin_cmd(char *argv1, char* refrence){
 }
 
 void 
-argparse(int argc, char *argv[]) {
-	if (argc == 1) {
-	
-		printf("no file provided.\n");
-		printf("help: kmp {protocol}:{path} (the path must be absolute.)\n");
-	
-		exit(1);
+argparse(int argc, char *argv[], char* refrence) {
+	gchar *uri = NULL;
+
+	if (argc > 1) {
+		if (g_strrstr (argv[1],"rtsp://") || g_strrstr (argv[1],"http://") || g_strrstr (argv[1], "https://") ||g_strrstr (argv[1],"file://"))
+		{	uri = g_strdup (argv[1]);
+//			printf("%s", uri);
+		}
+		else{
+			char* path = realpath(argv[1], NULL);
+			uri = g_strdup_printf ("file://%s", path);
+//			printf("%s", uri);
+		}
+	strcat(refrence, uri);
 	}
 	else {
-
-		printf("Playing: %s\n", argv[1]);
-	
+		printf("no file provided");
+		exit(0);
 	}
 }

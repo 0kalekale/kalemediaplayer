@@ -1,1 +1,1 @@
-int gst_init_main (int argc, char *argv[]);
+int gst_init_main (int argc, char *argv[], char *filepath);
