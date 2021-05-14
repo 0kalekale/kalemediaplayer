@@ -1,16 +1,24 @@
-name: build-test
+me: Build-test
 
 on:
   push:
-    paths: ['*']
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
-  Build:
+  build:
+
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Build
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc meson ninja libglib2.0-dev libgstreamer1.0-dev libgstreamer1.0
-          meson build &&  ninja -C build && build/kmp	
+    - uses: actions/checkout@v2
+    - name: configure
+      run: sudo apt-get update && sudo apt-get install -y gcc meson ninja libglib2.0-dev libgstreamer1.0-dev libgstreamer1.0
+    - name: meson
+      run: meson build
+    - name: compile
+      run: ninja -C build
+    - name: run
+      run: build/kmp
+
