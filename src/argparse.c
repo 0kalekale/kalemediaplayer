@@ -6,22 +6,7 @@
 #include <glib.h>
 
 #include "argparse.h"
-
-void
-gst_playbin_cmd(char *argv1, char* refrence){
-   /*
-   REMOVE ME
-   */
-   char cwd[PATH_MAX];
-   if (getcwd(cwd, sizeof(cwd)) != NULL) {
-   } else {
-       perror("getcwd() error");
-   }
-   char dest[PATH_MAX] = "/"; 
-   strcat(dest, argv1);
-   strcat(cwd, dest);
-   strcat(refrence, cwd);
-}
+#include "av_fork.h"
 
 void 
 argparse(int argc, char *argv[], char* refrence) {
@@ -31,6 +16,10 @@ argparse(int argc, char *argv[], char* refrence) {
 		if (g_strrstr (argv[1],"rtsp://") || g_strrstr (argv[1],"http://") || g_strrstr (argv[1], "https://") ||g_strrstr (argv[1],"file://"))
 		{	uri = g_strdup (argv[1]);
 //			printf("%s", uri);
+		}
+		else if (g_strrstr (argv[1], "youtube") || (g_strrstr(argv[1], "yt"))) {
+			//printf("werks till here");
+			fork_audio_video(argc, argv);
 		}
 		else{
 			char* path = realpath(argv[1], NULL);
@@ -43,4 +32,5 @@ argparse(int argc, char *argv[], char* refrence) {
 		printf("no file provided");
 		exit(0);
 	}
+
 }
