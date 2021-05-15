@@ -6,18 +6,56 @@
 
 #include "kmp.h"
 #include "argparse.h"
+#include "gtk-ui.h"
 
-
+/*
 typedef struct _CustomData {
   GstElement *playbin;  
+  
+  GtkWidget *slider;              
+  GtkWidget *streams_list;        
+  gulong slider_update_signal_id;
+  
   gboolean playing;      
   gboolean terminate;    
   gboolean seek_enabled; 
   gboolean seek_done;    
   gint64 duration;       
 } CustomData;
+*/
 
 static void handle_message (CustomData *data, GstMessage *msg);
+
+static 
+gboolean refresh_ui (CustomData *data) {
+  gint64 current = -1;
+
+  /* We do not want to update anything unless we are in the PAUSED or PLAYING states */
+  if (data->state < GST_STATE_PAUSED)
+    return TRUE;
+
+  /* If we didn't know it yet, query the stream duration */
+  if (!GST_CLOCK_TIME_IS_VALID (data->duration)) {
+    if (!gst_element_query_duration (data->playbin, GST_FORMAT_TIME, &data->duration)) {
+      g_printerr ("Could not query current duration.\n");
+    } else {
+      /* Set the range of the slider to the clip duration, in SECONDS */
+      gtk_range_set_range (GTK_RANGE (data->slider), 0, (gdouble)data->duration / GST_SECOND);
+    }
+  }
+
+  if (gst_element_query_position (data->playbin, GST_FORMAT_TIME, &current)) {
+    /* Block the "value-changed" signal, so the slider_cb function is not called
+     * (which would trigger a seek the user has not requested) */
+    g_signal_handler_block (data->slider, data->slider_update_signal_id);
+    /* Set the position of the slider to the current pipeline positoin, in SECONDS */
+    gtk_range_set_value (GTK_RANGE (data->slider), (gdouble)current / GST_SECOND);
+    /* Re-enable the signal */
+    g_signal_handler_unblock (data->slider, data->slider_update_signal_id);
+  }
+  return TRUE;
+}
+
 
 int
 gst_init_main (int argc, char *argv[], char *filepath) {
@@ -26,14 +64,17 @@ gst_init_main (int argc, char *argv[], char *filepath) {
   GstMessage *msg;
   GstStateChangeReturn ret;
 
+  memset (&data, 0, sizeof (data));;
   data.playing = FALSE;
   data.terminate = FALSE;
   data.seek_enabled = FALSE;
   data.seek_done = FALSE;
   data.duration = GST_CLOCK_TIME_NONE;
 
+  gtk_init (&argc, &argv);
   gst_init (&argc, &argv);
-
+  
+ 
   char gst_cmd[PATH_MAX] = "playbin uri=";
   strcat(gst_cmd, filepath);
   data.playbin = gst_element_factory_make ("playbin", "playbin");
@@ -41,9 +82,14 @@ gst_init_main (int argc, char *argv[], char *filepath) {
     g_printerr ("data.playbin could not be created.\n");
     return -1;
   }
-   g_object_set (data.playbin, "uri", filepath, NULL);
-  
+  g_object_set (data.playbin, "uri", filepath, NULL);
+  create_ui (&data);
+
   gst_element_set_state (data.playbin, GST_STATE_PLAYING); 
+  
+  g_timeout_add_seconds (1, (GSourceFunc)refresh_ui, &data);
+
+  gtk_main ();
   bus = gst_element_get_bus (data.playbin);
   do {
     msg = gst_bus_timed_pop_filtered (bus, 100 * GST_MSECOND,
