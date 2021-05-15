@@ -5,7 +5,7 @@ simple media player with gstreamer
 ## installing/Building
 
 - You need to have gstreamer installed, find the proper packages for your distro
-- To build you will need the gstreamer headers, glib headers, meson, ninja and a C compiler
+- To build you will need the gstreamer headers, glib headers, gtk headers, meson, ninja and a C compiler
 
 ```
 git clone https://github.com/0kalekale/kmp
