@@ -1,5 +1,6 @@
 #include <gst/gst.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
@@ -88,8 +89,18 @@ gst_init_main (int argc, char *argv[], char *filepath) {
   gst_element_set_state (data.playbin, GST_STATE_PLAYING); 
   
   g_timeout_add_seconds (1, (GSourceFunc)refresh_ui, &data);
-
-  gtk_main ();
+  
+  pid_t pid = fork();
+  
+  if (pid < 0) {
+	fprintf(stderr, "Fork Failed");
+	exit(1);
+  }
+  else if (pid == 0) {
+	gtk_main();
+  }
+  
+  else {
   bus = gst_element_get_bus (data.playbin);
   do {
     msg = gst_bus_timed_pop_filtered (bus, 100 * GST_MSECOND,
@@ -126,11 +137,12 @@ gst_init_main (int argc, char *argv[], char *filepath) {
       }
     }
   } while (!data.terminate);
-
+  }
   gst_object_unref (bus);
   gst_element_set_state (data.playbin, GST_STATE_NULL);
   gst_object_unref (data.playbin);
-
+ 
+  wait(NULL);
   return 0;
 
 }
