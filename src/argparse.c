@@ -18,7 +18,6 @@ argparse(int argc, char *argv[], char* refrence) {
 //			printf("%s", uri);
 		}
 		else if (g_strrstr (argv[1], "youtube") || (g_strrstr(argv[1], "yt"))) {
-			//printf("werks till here");
 			fork_audio_video(argc, argv);
 		}
 		else{
