@@ -1,1 +1,4 @@
 build/
+dist/
+PyKmp.egg-info/
+PyKmp/__pycache__/
