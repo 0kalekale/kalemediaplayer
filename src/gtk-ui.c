@@ -66,7 +66,6 @@ gboolean
 draw_cb (GtkWidget *widget, cairo_t *cr, CustomData *data) {
   if (data->state < GST_STATE_PAUSED) {
     GtkAllocation allocation;
-
     /* Cairo is a 2D graphics library which we use here to clean the video window.
      * It is used by GStreamer for other reasons, so it will always be available to us. */
     gtk_widget_get_allocation (widget, &allocation);
@@ -93,7 +92,7 @@ create_ui (CustomData *data) {
   video_window = gtk_drawing_area_new ();
   //gtk_widget_set_double_buffered (video_window, FALSE);
   g_signal_connect (video_window, "realize", G_CALLBACK (realize_cb), data);
-  g_signal_connect (video_window, "draw", G_CALLBACK (draw_cb), data);
+  //g_signal_connect (video_window, "draw", G_CALLBACK (draw_cb), data);
 
   //data->slider = gtk_scale_new_with_range (GTK_ORIENTATION_HORIZONTAL, 0, 100, 1);
   //gtk_scale_set_draw_value (GTK_SCALE (data->slider), 0);
