@@ -1,8 +1,11 @@
 #include <gst/gst.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include<sys/wait.h>
+#include <signal.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "kmp.h"
@@ -63,7 +66,7 @@ gst_init_main (int argc, char *argv[], char *filepath) {
   CustomData data;
   GstBus *bus;
   GstMessage *msg;
-  GstStateChangeReturn ret;
+  //GstStateChangeReturn ret;
 
   memset (&data, 0, sizeof (data));;
   data.playing = FALSE;
@@ -101,6 +104,7 @@ gst_init_main (int argc, char *argv[], char *filepath) {
   }
   
   else {
+  printf("%d", pid);
   bus = gst_element_get_bus (data.playbin);
   do {
     msg = gst_bus_timed_pop_filtered (bus, 100 * GST_MSECOND,
@@ -137,11 +141,15 @@ gst_init_main (int argc, char *argv[], char *filepath) {
       }
     }
   } while (!data.terminate);
+  printf("loop terminated");
   }
+  kill(pid, SIGTERM);
+  //gtk_main_quit();
+  printf("reached here");
   gst_object_unref (bus);
   gst_element_set_state (data.playbin, GST_STATE_NULL);
   gst_object_unref (data.playbin);
- 
+  
   wait(NULL);
   return 0;
 

@@ -14,4 +14,4 @@ kmp_source = [
 		   'src/av_fork.c',
 		   'src/gtk-ui.c'	
 ]
-executable('kmp', kmp_source, dependencies : [gst, glib, gtk3, gstvideo], include_directories : incdir, link_args : '-lpthread', install : true)
+executable('kmp', kmp_source, dependencies : [gst, glib, gtk3, gstvideo], include_directories : incdir,install : true)
